@@ -13,7 +13,7 @@ def parse_arguments() -> argparse.Namespace:
 def main():
     arguments = parse_arguments()
     paritygame = ParityGame.parse_graph(arguments.paritygame)
-    paritygame.set_solve_strategy(Strategy.RANDOM)
+    paritygame.set_solve_strategy(Strategy.BACKTRACK)
     paritygame.solve()
     
 if __name__ == "__main__": 

@@ -4,7 +4,7 @@ from enum import Enum
 
 from tuple import Tuple 
 from vertex import Vertex, Player
-from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy
+from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy
 
 class Strategy(Enum): 
     INPUT = 0 
@@ -74,7 +74,7 @@ class ParityGame:
             case Strategy.RANDOM: 
                 return RandomLiftStrategy(self.vertices)
             case Strategy.BACKTRACK: 
-                return None 
+                return BackTrackLiftStrategy(self.vertices)
             case Strategy.LOOP: 
                 return None 
 
@@ -86,14 +86,22 @@ class ParityGame:
             
         self.lift_amount = 0
         lift_strategy = self.__init_lift_strategy()
+
         while not self.__is_stable(self.vertices): 
-            v: Vertex = lift_strategy.next_vertex()
+            v: Vertex | None = lift_strategy.next_vertex()
+            if not v: break # if the queue is empty we break out of the loop
 
             # lift the vertex 
             new_tuple: Tuple = self.__lift(v)
             self.lift_amount += 1
             # check if the found tuple is stable 
-            v.stable = (new_tuple == v.tuple)
+            if (new_tuple == v.tuple): 
+                # no change in tuple 
+                v.stable = True 
+            else: 
+                # there has been a change in tuple 
+                v.stable = False 
+                lift_strategy.was_lifted(v)
             # set the final tuple for the vertex 
             v.tuple = new_tuple
 
