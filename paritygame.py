@@ -4,13 +4,14 @@ from enum import Enum
 
 from tuple import Tuple 
 from vertex import Vertex, Player
-from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy
+from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy, SelfLoopStrategy, BackTrackSelfLoopStrategy
 
 class Strategy(Enum): 
     INPUT = 0 
     RANDOM = 1
     BACKTRACK = 2 
     LOOP = 3
+    LOOPBACKTRACK = 4
 
 def strategy_string(strategy: Strategy): 
     match strategy: 
@@ -22,6 +23,8 @@ def strategy_string(strategy: Strategy):
             return "backtrack"
         case Strategy.LOOP: 
             return "loop elimination"
+        case Strategy.LOOPBACKTRACK: 
+            return "loop elimination with backtrack"
 
 class ParityGame: 
 
@@ -76,14 +79,22 @@ class ParityGame:
             case Strategy.BACKTRACK: 
                 return BackTrackLiftStrategy(self.vertices)
             case Strategy.LOOP: 
-                return None 
+                return SelfLoopStrategy(self.vertices) 
+            case Strategy.LOOPBACKTRACK: 
+                return BackTrackSelfLoopStrategy(self.vertices)
+    
+    def __reset_vertices(self): 
+        # Set empty tuples for each vertex and reset stability measure
+        for v in self.vertices: 
+            v.stable = False 
+            v.tuple = Tuple.get_empty_tuple()
 
     # Solve parity game using small progress measures (SPM) algorithm
     def solve(self) -> None: 
-        # Set empty tuples for each vertex 
-        for v in self.vertices: 
-            v.tuple = Tuple.get_empty_tuple()
-            
+        # reset vertices
+        self.__reset_vertices()
+        
+        # set lfiting startegy generator
         self.lift_amount = 0
         lift_strategy = self.__init_lift_strategy()
 

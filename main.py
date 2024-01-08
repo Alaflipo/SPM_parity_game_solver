@@ -10,11 +10,17 @@ def parse_arguments() -> argparse.Namespace:
     arguments = parser.parse_args()
     return arguments
 
+def solve_every_strat(pg: ParityGame): 
+    for strat in Strategy: 
+        pg.set_solve_strategy(strat)
+        pg.solve()
+
 def main():
     arguments = parse_arguments()
     paritygame = ParityGame.parse_graph(arguments.paritygame)
-    paritygame.set_solve_strategy(Strategy.BACKTRACK)
+    paritygame.set_solve_strategy(Strategy.LOOPBACKTRACK)
     paritygame.solve()
+    # solve_every_strat(paritygame)
     
 if __name__ == "__main__": 
     main()

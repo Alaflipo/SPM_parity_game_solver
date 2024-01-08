@@ -22,6 +22,7 @@ class Vertex:
         # Tuple for small progress measures algo 
         self.tuple: Tuple = None 
         self.stable: bool = False 
+        self.odd_self_loop: bool = False 
 
     def parse_vertex(self, vertex_info: str, other_vertices: list[Vertex]) -> None: 
         self.priority = int(vertex_info[1])
@@ -30,10 +31,18 @@ class Vertex:
         for next_id in vertex_info[3].split(','): 
             self.add_transition(other_vertices[int(next_id)])
         self.name = " ".join(vertex_info[4:]).strip("\"") if len(vertex_info) > 4 else ''
-    
+        self.check_odd_self_loop()
+
     def add_transition(self, other: Vertex) -> None: 
         self.next.add(other)
         other.prev.add(self)
+
+    def check_odd_self_loop(self) -> None: 
+        if (self.owner == Player.ODD and not self.even_priority): 
+            for next_v in self.next: 
+                if (self.id == next_v.id): 
+                    self.odd_self_loop = True 
+                    break 
     
     def __str__(self) -> str: 
         return "{id} ({name}): {transitions}".format(id=self.id, name=self.name, transitions=self.next)
