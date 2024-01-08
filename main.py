@@ -18,9 +18,9 @@ def solve_every_strat(pg: ParityGame):
 def main():
     arguments = parse_arguments()
     paritygame = ParityGame.parse_graph(arguments.paritygame)
-    paritygame.set_solve_strategy(Strategy.LOOPBACKTRACK)
-    paritygame.solve()
-    # solve_every_strat(paritygame)
+    # paritygame.set_solve_strategy(Strategy.LOOPBACKTRACKODD)
+    # paritygame.solve()
+    solve_every_strat(paritygame)
     
 if __name__ == "__main__": 
     main()

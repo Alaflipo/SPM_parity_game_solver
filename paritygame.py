@@ -4,7 +4,7 @@ from enum import Enum
 
 from tuple import Tuple 
 from vertex import Vertex, Player
-from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy, SelfLoopStrategy, BackTrackSelfLoopStrategy
+from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy, SelfLoopStrategy, BackTrackSelfLoopStrategy, OddFirstBackTrackSelfLoopStrategy
 
 class Strategy(Enum): 
     INPUT = 0 
@@ -12,6 +12,7 @@ class Strategy(Enum):
     BACKTRACK = 2 
     LOOP = 3
     LOOPBACKTRACK = 4
+    LOOPBACKTRACKODD = 5
 
 def strategy_string(strategy: Strategy): 
     match strategy: 
@@ -25,6 +26,8 @@ def strategy_string(strategy: Strategy):
             return "loop elimination"
         case Strategy.LOOPBACKTRACK: 
             return "loop elimination with backtrack"
+        case Strategy.LOOPBACKTRACKODD: 
+            return "loop elimination with backtrack putting odd vertices always first"
 
 class ParityGame: 
 
@@ -82,6 +85,8 @@ class ParityGame:
                 return SelfLoopStrategy(self.vertices) 
             case Strategy.LOOPBACKTRACK: 
                 return BackTrackSelfLoopStrategy(self.vertices)
+            case Strategy.LOOPBACKTRACKODD: 
+                return OddFirstBackTrackSelfLoopStrategy(self.vertices)
     
     def __reset_vertices(self): 
         # Set empty tuples for each vertex and reset stability measure
@@ -175,10 +180,11 @@ class ParityGame:
         print('File path:', self.file)
         print('Strategy:', strategy_string(self.strategy))
         print('Number of lifts:', self.lift_amount)
-        print("Vertices that player odd wins:")
+        print("Vertices that player odd wins:", len(odd_wins))
         print(odd_wins)
-        print("Vertices that player even wins:")
+        print("Vertices that player even wins:", len(even_wins))
         print(even_wins)
+        print("Verdict:", "odd wins" if self.vertices[0].tuple.top else "even wins")
         print("##################################\n")
 
     def __str__(self) -> str:

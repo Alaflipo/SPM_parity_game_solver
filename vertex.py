@@ -42,7 +42,10 @@ class Vertex:
             for next_v in self.next: 
                 if (self.id == next_v.id): 
                     self.odd_self_loop = True 
-                    break 
+                    break
+
+    def __lt__(self, other: Vertex) -> bool:
+        return self.owner.value < other.owner.value
     
     def __str__(self) -> str: 
         return "{id} ({name}): {transitions}".format(id=self.id, name=self.name, transitions=self.next)

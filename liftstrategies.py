@@ -3,7 +3,7 @@ from __future__ import annotations
 from vertex import Vertex, Player
 
 import random 
-from queue import Queue
+from queue import Queue, PriorityQueue
 
 class LiftStrategy: 
 
@@ -137,6 +137,44 @@ class BackTrackSelfLoopStrategy(LiftStrategy):
             if (not self.in_queue[w.id] and not w.tuple.top): 
                 self.in_queue[w.id] = True 
                 self.Q.put(w)
+
+
+class OddFirstBackTrackSelfLoopStrategy(LiftStrategy): 
+
+    def __init__(self, vertices):
+        super().__init__(vertices)
+        self.Q: Queue[Vertex] = PriorityQueue(maxsize=self.n_vertices)
+        self.in_queue: list[bool] = [True for _ in range(self.n_vertices)] 
+        self.count = 0 
+        
+        # split the vertices in ones that have a self-loop and ones that don't 
+        self.odd_self_loop: list[Vertex] = []
+        no_odd_self_loop: list[Vertex] = [] 
+        for v in self.vertices: 
+            if (v.odd_self_loop): 
+                v.tuple.set_top(True)
+                v.stable = True 
+            else: 
+                no_odd_self_loop.append(v)
+        # put the vertices with a self-loop first in the queue
+        for v in no_odd_self_loop: 
+            self.Q.put(v)
+
+    def next_vertex(self) -> Vertex: 
+        if (self.Q.empty()): 
+            return None
+        
+        v: Vertex = self.Q.get()
+        self.in_queue[v.id] = False
+        self.current = v 
+        return v 
+                
+    def was_lifted(self, v: Vertex): 
+        for w in v.prev: 
+            if (not self.in_queue[w.id] and not w.tuple.top): 
+                self.in_queue[w.id] = True 
+                self.Q.put(w)
+
 
 
 

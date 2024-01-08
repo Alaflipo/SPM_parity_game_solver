@@ -161,5 +161,7 @@ cython_debug/
 
 # specific 
 
-/examples
+/examples/ccp_games/*
+/examples/dining_games/*
+/examples/elevator_games/*
 .DS_Store
