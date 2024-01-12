@@ -17,7 +17,6 @@ class LiftStrategy:
     def was_lifted(self, v: Vertex) -> None: 
         pass 
 
-
 class InputLiftStrategy(LiftStrategy): 
     
     def __init__(self, vertices: list[Vertex]): 
@@ -145,20 +144,13 @@ class OddFirstBackTrackSelfLoopStrategy(LiftStrategy):
         super().__init__(vertices)
         self.Q: Queue[Vertex] = PriorityQueue(maxsize=self.n_vertices)
         self.in_queue: list[bool] = [True for _ in range(self.n_vertices)] 
-        self.count = 0 
         
-        # split the vertices in ones that have a self-loop and ones that don't 
-        self.odd_self_loop: list[Vertex] = []
-        no_odd_self_loop: list[Vertex] = [] 
         for v in self.vertices: 
             if (v.odd_self_loop): 
                 v.tuple.set_top(True)
                 v.stable = True 
             else: 
-                no_odd_self_loop.append(v)
-        # put the vertices with a self-loop first in the queue
-        for v in no_odd_self_loop: 
-            self.Q.put(v)
+                self.Q.put(v)
 
     def next_vertex(self) -> Vertex: 
         if (self.Q.empty()): 

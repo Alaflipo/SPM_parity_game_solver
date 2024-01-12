@@ -4,35 +4,45 @@ from enum import Enum
 
 from tuple import Tuple 
 from vertex import Vertex, Player
-from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy, SelfLoopStrategy, BackTrackSelfLoopStrategy, OddFirstBackTrackSelfLoopStrategy
+from liftstrategies import LiftStrategy, InputLiftStrategy, RandomLiftStrategy, BackTrackLiftStrategy, SelfLoopStrategy, OddFirstBackTrackSelfLoopStrategy
 
 class Strategy(Enum): 
     INPUT = 0 
     RANDOM = 1
     BACKTRACK = 2 
     LOOP = 3
-    LOOPBACKTRACK = 4
-    LOOPBACKTRACKODD = 5
+    LOOPBACKTRACKODD = 4
 
 def strategy_string(strategy: Strategy): 
     match strategy: 
         case Strategy.INPUT: 
-            return "input order"
+            return "input"
         case Strategy.RANDOM: 
-            return "random order"
+            return "random"
         case Strategy.BACKTRACK: 
             return "backtrack"
         case Strategy.LOOP: 
-            return "loop elimination"
-        case Strategy.LOOPBACKTRACK: 
-            return "loop elimination with backtrack"
+            return "loop elim"
         case Strategy.LOOPBACKTRACKODD: 
-            return "loop elimination with backtrack putting odd vertices always first"
+            return "loop elim + backtrack"
+
+def string_to_strat(strat_str: str): 
+    match strat_str: 
+        case "input": 
+            return Strategy.INPUT
+        case "random": 
+            return Strategy.RANDOM
+        case "backtrack": 
+            return Strategy.BACKTRACK
+        case "selfloop": 
+            return Strategy.LOOP
+        case "combined": 
+            return Strategy.LOOPBACKTRACKODD
 
 class ParityGame: 
 
     def __init__(self, n_vertices, file) -> None: 
-        self.file = file
+        self.file: str = file
         self.n_vertices: int = n_vertices
         self.vertices: list[Vertex] = [Vertex(id=i) for i in range(n_vertices)]
         self.max_priority: int = -1
@@ -70,8 +80,8 @@ class ParityGame:
         Tuple.set_tuple_size(self.max_priority + 1)
         Tuple.set_max_tuple([v.priority for v in self.vertices])
     
-    def set_solve_strategy(self, strategy: Strategy): 
-        self.strategy = strategy
+    def set_solve_strategy(self, strategy_str: str): 
+        self.strategy = string_to_strat(strategy_str)
 
     def __init_lift_strategy(self) -> LiftStrategy: 
         match self.strategy: 
@@ -83,8 +93,6 @@ class ParityGame:
                 return BackTrackLiftStrategy(self.vertices)
             case Strategy.LOOP: 
                 return SelfLoopStrategy(self.vertices) 
-            case Strategy.LOOPBACKTRACK: 
-                return BackTrackSelfLoopStrategy(self.vertices)
             case Strategy.LOOPBACKTRACKODD: 
                 return OddFirstBackTrackSelfLoopStrategy(self.vertices)
     
@@ -128,7 +136,7 @@ class ParityGame:
             if not v.stable: return False 
         return True 
 
-    def __lift(self, v: Vertex): 
+    def __lift(self, v: Vertex) -> Tuple: 
         if (v.owner == Player.EVEN): 
             # initilize the tuple to the largest tuple (top)
             min_tup: Tuple = Tuple.get_empty_tuple() 
@@ -174,16 +182,14 @@ class ParityGame:
                 even_wins.append(v)
         return odd_wins, even_wins 
     
-    def print_results(self): 
+    def print_results(self) -> None: 
         odd_wins, even_wins = self.make_groups()
         print("##################################")
         print('File path:', self.file)
         print('Strategy:', strategy_string(self.strategy))
         print('Number of lifts:', self.lift_amount)
         print("Vertices that player odd wins:", len(odd_wins))
-        print(odd_wins)
         print("Vertices that player even wins:", len(even_wins))
-        print(even_wins)
         print("Verdict:", "odd wins" if self.vertices[0].tuple.top else "even wins")
         print("##################################\n")
 

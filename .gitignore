@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 # specific 
-
+# ignore all large files
 /examples/ccp_games/*
 /examples/dining_games/*
 /examples/elevator_games/*
